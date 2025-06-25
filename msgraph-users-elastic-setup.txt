@@ -1,0 +1,105 @@
+PUT _template/msgraph-users-template
+{
+    "order" : 10,
+    "version" : 70001,
+    "index_patterns" : [
+      "msgraph-users-*"
+    ],
+    "settings" : {
+      "index" : {
+        "lifecycle" : {
+          "name" : "ilm-msgraph-alerts-policy",
+          "rollover_alias" : "msgraph-users-write"
+        },
+        "mapping" : {
+          "total_fields" : {
+            "limit" : "1000"
+          }
+        },
+        "search" : {
+          "slowlog" : {
+            "threshold" : {
+              "fetch" : {
+                "warn" : "30s"
+              },
+              "query" : {
+                "warn" : "30s"
+              }
+            }
+          }
+        },
+        "refresh_interval" : "60s",
+        "number_of_shards" : "1",
+        "number_of_replicas" : "1"
+      }
+    },    
+    "mappings": {
+      "properties": {
+        "displayName": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "givenName": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "id": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "mail": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "surname": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "userPrincipalName": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
+    },
+    "aliases" : { 
+              "msgraph-users" : {}
+    }
+}
+PUT msgraph-users-000001
+{
+    "aliases" : {
+        "msgraph-users" : {},
+        "msgraph-users-write" : { "is_write_index": true }
+    }
+}
+GET msgraph-users-000001
