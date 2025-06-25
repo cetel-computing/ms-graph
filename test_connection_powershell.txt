@@ -1,0 +1,120 @@
+#Get access token:
+
+$ApplicationID = ""
+$TenatDomainName = ""
+$AccessSecret = ""
+
+$Body = @{    
+Grant_Type    = "client_credentials"
+Scope         = "https://graph.microsoft.com/.default"
+client_Id     = $ApplicationID
+Client_Secret = $AccessSecret
+} 
+
+$ConnectGraph = Invoke-RestMethod -Uri "https://login.microsoftonline.com/$TenatDomainName/oauth2/v2.0/token" `
+-Method POST -Body $Body
+
+$token = $ConnectGraph.access_token
+
+#-------------------
+#Read data from alerts endpoint
+
+$GrapAlertUrl = 'https://graph.microsoft.com/v1.0/security/alerts/'
+
+$r = [regex]'^.*?value":(.*)'
+$date = Get-Date -Format "yyyyMMddHHmm"
+$AlertFile = "C:\temp\" + $date + "alerts.txt"
+
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapAlertUrl -Method Get).content -match $r)
+{ 
+    Set-Content $AlertFile $Matches[1]
+}
+
+#-------------------
+#Read data from auditlogs endpoint
+
+$filter = "category eq 'UserManagement'"
+$GrapAlertUrl = 'https://graph.microsoft.com/v1.0/auditLogs/directoryaudits?&$filter= '+$filter
+
+$r = [regex]'^.*?value":(.*)'
+$date = Get-Date -Format "yyyyMMddHHmm"
+$AlertFile = "C:\temp\" + $date + "auditlogs.txt"
+
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapAlertUrl -Method Get).content -match $r)
+{ 
+    Set-Content $AlertFile $Matches[1]
+}
+
+#-------------------
+#other endpoint tests:
+
+$GrapRiskUrl = 'https://graph.microsoft.com/v1.0/identityProtection/riskDetections/'
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/users/'
+$GrapGroupUrl = 'https://graph.microsoft.com/v1.0/groups/'
+$GrapAppUrl = 'https://graph.microsoft.com/v1.0/applications/'
+
+
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapRiskUrl -Method Get).content -match $r)
+{
+    Set-Content C:\temp\risk_detection.txt $Matches[1]
+}
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content -match $r) 
+{
+    Set-Content C:\temp\users.txt $Matches[1]
+}
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapGroupUrl -Method Get).content -match $r)
+{ 
+    Set-Content C:\temp\groups.txt $Matches[1]
+}
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapAppUrl -Method Get).content -match $r)
+{
+    Set-Content C:\temp\apps.txt $Matches[1]
+}
+
+#-------------------
+#Read data from users endpoint
+
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/users/'
+
+$r = [regex]'^.*?value":(.*)'
+
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content -match $r) 
+{
+    Set-Content C:\temp\users.txt $Matches[1]
+}
+
+#-------------------
+
+#get user id
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/users/Lindsay.Timms@xxxxxxx'
+(Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content
+
+#joined teams
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/users/[user id]/joinedTeams'
+(Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content
+
+#list all channels
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/teams/[team id]/channels'
+(Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content
+
+#messages in a channel
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/teams/[team id]/channels/[channel id]/messages'
+(Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content
+
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content -match $r) 
+{
+    Set-Content C:\temp\channel_chats.txt $Matches[1]
+}
+
+#chats - beta
+$GrapUsrUrl = 'https://graph.microsoft.com/beta/users/[user id]/chats/getAllMessages'
+(Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content
+
+if ((Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content -match $r) 
+{
+    Set-Content C:\temp\chats.txt $Matches[1]
+}
+
+$GrapUsrUrl = 'https://graph.microsoft.com/v1.0/chats/[chat id]/members'
+(Invoke-WebRequest -Headers @{Authorization = "Bearer $($token)"} -Uri $GrapUsrUrl -Method Get).content
+
