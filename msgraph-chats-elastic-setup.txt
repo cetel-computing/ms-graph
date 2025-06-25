@@ -1,0 +1,246 @@
+PUT _template/msgraph-chat-messages-template
+{
+    "order" : 10,
+    "version" : 70001,
+    "index_patterns" : [
+      "msgraph-chat-messages-*"
+    ],
+    "settings" : {
+      "index" : {
+        "lifecycle" : {
+          "name" : "ilm-msgraph-alerts-policy",
+          "rollover_alias" : "msgraph-chat-messages-write"
+        },
+        "mapping" : {
+          "total_fields" : {
+            "limit" : "1000"
+          }
+        },
+        "search" : {
+          "slowlog" : {
+            "threshold" : {
+              "fetch" : {
+                "warn" : "30s"
+              },
+              "query" : {
+                "warn" : "30s"
+              }
+            }
+          }
+        },
+        "refresh_interval" : "60s",
+        "number_of_shards" : "1",
+        "number_of_replicas" : "1"
+      }
+    },
+    "mappings": {
+        "properties": {
+            "@odata": {
+              "properties": {
+                "type": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                }
+              }
+            },
+            "body": {
+              "properties": {
+                "content": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "contentType": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                }
+              }
+            },
+            "chatId": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "createdDateTime": {
+              "type": "date"
+            },
+            "deletedDateTime": {
+              "type": "date"
+            },
+            "etag": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "from": {
+              "properties": {
+                "user": {
+                  "properties": {
+                    "displayName": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "id": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    },
+                    "userIdentityType": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "id": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "importance": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "lastEditedDateTime": {
+              "type": "date"
+            },
+            "lastModifiedDateTime": {
+              "type": "date"
+            },
+            "locale": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "messageType": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "reactions": {
+              "properties": {
+                "createdDateTime": {
+                  "type": "date"
+                },
+                "reactionType": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
+                },
+                "user": {
+                  "properties": {
+                    "user": {
+                      "properties": {
+                        "id": {
+                          "type": "text",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                        "userIdentityType": {
+                          "type": "text",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+        }
+    },
+    "aliases" : { 
+          "msgraph-chat-messages" : {}
+    }
+}
+PUT msgraph-chat-messages-000001
+{
+    "aliases" : {
+        "msgraph-chat-messages" : {},
+        "msgraph-chat-messages-write" : { "is_write_index": true }
+    }
+}
+GET msgraph-chat-messages-000001
+
+
+PUT msgraph-chats-000001
+{
+    "aliases" : {
+        "msgraph-chats" : {},
+        "msgraph-chats-write" : { "is_write_index": true }
+    }
+}
+
+PUT msgraph-chat-members-000001
+{
+    "aliases" : {
+        "msgraph-chat-members" : {},
+        "msgraph-chat-members-write" : { "is_write_index": true }
+    }
+}
